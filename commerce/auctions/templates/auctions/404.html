@@ -1,0 +1,17 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    404 Page not found
+{% endblock %}
+
+{% block body %}
+    <div class="center">
+        <section>
+            <h1 style="text-align: center;">404</h1>
+            <h2 style="text-align: center; color: grey;">Page not found</h2><br>
+            <div class="center">
+                <a href="{% url 'index' %}" class="home_link">Active listings</a>
+            </div>
+        </section>
+    </div>
+{% endblock %}

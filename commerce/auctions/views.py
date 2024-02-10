@@ -1,5 +1,5 @@
 import datetime
-
+from .util import *
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django import forms
@@ -107,4 +107,9 @@ def new_listing(request):
 
 def listing_page(request, id):
     if request.method == "GET":
-        return render(request, "auctions/listing_page.html")
+        if is_valid(id):
+            listing = Auction_listing.objects.get(id=id)
+            return render(request, "auctions/listing_page.html", {
+                "listing": listing
+            })
+        return render(request, "auctions/404.html")

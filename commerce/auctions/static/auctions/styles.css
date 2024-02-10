@@ -54,3 +54,20 @@ body {
     text-decoration: none;
     color: black;
 }
+
+.center{
+    display:flex;
+    height: 40%;
+    justify-content: center;
+    align-items: center;
+}
+
+.home_link{
+    color: white;
+    border: 6px solid #6495ed;
+    background-color: #6495ed;
+}
+
+.home_link:hover{
+    color: white;
+}

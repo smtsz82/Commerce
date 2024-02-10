@@ -8,7 +8,9 @@
                 <div class="listing">
                     {% if listing.listing_img %}
                         <div class="small_image">
-                            <img src="{{ listing.listing_img }}" alt="{{ listing.listing_title }}">
+                            <a href="{% url 'listing_page' listing.id %}" class="listing_link">
+                                <img src="{{ listing.listing_img }}" alt="{{ listing.listing_title }}">
+                            </a>
                         </div>
                     {% endif %}
                     <a href="{% url 'listing_page' listing.id %}" class="listing_link">

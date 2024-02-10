@@ -105,3 +105,6 @@ def new_listing(request):
         "message": "Listing creation failed, please"
     })
 
+def listing_page(request, id):
+    if request.method == "GET":
+        return render(request, "auctions/listing_page.html")

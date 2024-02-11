@@ -1,5 +1,18 @@
 {% extends "auctions/layout.html" %}
 
+{% block title %}
+    {{ listing.listing_title }}
+{% endblock %}
+
 {% block body %}
-    <h2>{{ listing.listing_title }}</h2>
+    <div class="listing_page">
+        {% if listing.listing_img %}
+            <div class="big_image">
+                <img src="{{ listing.listing_img }}" alt="{{ listing.listing_title }}">
+            </div>
+        {% endif %}
+        <div class="listing_page_info">
+            <h2>{{ listing.listing_title }}</h2>
+        </div>
+    </div>
 {% endblock %}

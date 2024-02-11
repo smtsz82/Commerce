@@ -14,11 +14,41 @@ body {
     margin: 10px;
     border: 2px lightgray solid;
 }
+
+.listing_page{
+    display: flex;
+    flex-flow: row wrap;
+    width: 100%;
+    height: fit-content;
+    margin: 10px;
+    text-align: justify;
+}
+
+.listing_page_info{
+    display: flex;
+    width: 40%;
+    height: 100%;
+    word-wrap: break-word;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
 .small_image{
     margin: 5px;
     margin-left: 5%;
     width: 20%;
     height: 100%;
+}
+
+.big_image{
+    width: 30%;
+    height: 100%;
+}
+
+.big_image img{
+    width: 80%;
+    height: 95%;
+    object-fit: cover;
 }
 
 .small_image img{
@@ -29,6 +59,7 @@ body {
 
 .listing_info{
     display: flex;
+    width: 40%;
     width: fit-content;
     height: 100%;
     word-wrap: break-word;

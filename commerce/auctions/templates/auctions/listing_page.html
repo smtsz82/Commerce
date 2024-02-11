@@ -5,6 +5,11 @@
 {% endblock %}
 
 {% block body %}
+    {% if error_message %}
+        <div class="alert alert-danger" role="alert" style="text-align: center">
+            <a href="{% url 'login' %}">Login</a> {{ error_message }}
+        </div>
+    {% endif %}
     <div class="listing_page">
         {% if listing.listing_img %}
             <div class="big_image">
@@ -13,6 +18,23 @@
         {% endif %}
         <div class="listing_page_info">
             <h2>{{ listing.listing_title }}</h2>
+            <strong>Price: {{ listing.current_bid }}$</strong>
+            <h5>{{ listing.listing_desc }}</h5>
+            {% if listing.listing_category %}
+                <h6>Category: {{ listing.listing_category}}</h6>
+            {% else %}
+                <h6>No category listed</h6>
+            {% endif %}
+            <p>Listed by: {{ listing.user.username }}</p>
+        </div>
+        <div class="bid_watchlist">
+            <div class="right">
+                <form action="{% url 'listing_page' listing.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="watchlist">
+                    <input type="submit" value="{{ watchlist_state }}" class="btn btn-primary">
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

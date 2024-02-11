@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from .models import Auction_listing
 from .models import User
+from .models import Watchlist
 
 
 # class NewTaskForm(forms.Form):
@@ -106,10 +107,34 @@ def new_listing(request):
     })
 
 def listing_page(request, id):
-    if request.method == "GET":
-        if is_valid(id):
-            listing = Auction_listing.objects.get(id=id)
+    if is_valid(id):
+        listing = Auction_listing.objects.get(id=id)
+        user_id = request.user.id
+        # Check if listing is watchlisted for the current user
+        wlisted = watchlisted(user_id, listing)
+        if wlisted:
+            message = "Remove from watchlist"
+        else:
+            message = "Add to watchlist"
+        if request.method == "GET":
+                return render(request, "auctions/listing_page.html", {
+                    "listing": listing,
+                    "error_message": None,
+                    "watchlist_state": message
+                })
+        if request.method == "POST" and request.POST["action"] == "watchlist" and request.user.is_authenticated:
+            # if user had listing in his watchlist we remove it from database
+            if wlisted:
+                Watchlist.objects.filter(id=wlisted).delete()
+            else:
+                watchlist = Watchlist(user_id=user_id, listing=listing)
+                watchlist.save()
+            return HttpResponseRedirect(reverse("listing_page", args=(id,)))
+        # if user is not logged in and tries to perform action that requires it we render the page with a error message
+        else:
             return render(request, "auctions/listing_page.html", {
-                "listing": listing
+                "listing": listing,
+                "error_message": "to perform this action",
+                "watchlist_state": message
             })
-        return render(request, "auctions/404.html")
+    return render(request, "auctions/404.html")

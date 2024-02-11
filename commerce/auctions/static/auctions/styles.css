@@ -21,13 +21,13 @@ body {
     width: 100%;
     height: fit-content;
     margin: 10px;
-    text-align: justify;
 }
 
 .listing_page_info{
     display: flex;
     width: 40%;
-    height: 100%;
+    margin-right: 20px;
+    height: auto;
     word-wrap: break-word;
     flex-direction: column;
     justify-content: space-evenly;
@@ -59,7 +59,6 @@ body {
 
 .listing_info{
     display: flex;
-    width: 40%;
     width: fit-content;
     height: 100%;
     word-wrap: break-word;
@@ -101,4 +100,14 @@ body {
 
 .home_link:hover{
     color: white;
+}
+
+.bid_watchlist{
+    width: 28.5%;
+    height: auto;
+}
+
+.right{
+    display: flex;
+    justify-content: flex-end;
 }

@@ -23,3 +23,6 @@ class Auction_listing(models.Model):
     def __str__(self):
         return f"{self.listing_title, self.is_active, self.user}"
 
+class Watchlist(models.Model):
+    user_id = models.IntegerField()
+    listing = models.ForeignKey(Auction_listing, on_delete=models.CASCADE, related_name="watchlist")

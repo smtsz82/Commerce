@@ -2,15 +2,17 @@ import django.http
 from django.db import models
 from .models import Auction_listing, Watchlist, Bid
 
+
 def is_valid(id):
-    "Returns true if listing with id exists false otherwise"
+    """Returns true if listing with id exists false otherwise"""
     try:
         listing = Auction_listing.objects.get(id=id)
     except:
         return False
     return True
 
-def watchlisted(user_id ,listing):
+
+def watchlisted(user_id, listing):
     # Returns watchlist id if user with "user_id" added listing "listing" to his watchlist
     try:
         added = Watchlist.objects.get(user_id=user_id, listing=listing)
@@ -18,10 +20,12 @@ def watchlisted(user_id ,listing):
     except:
         return None
 
+
 def assign_error_message(listing):
     if not listing.is_active:
         return "This listing is closed and you can no longer place bids on it"
     return None
+
 
 def find_highest_username(listing):
     bids = Bid.objects.filter(listing=listing)

@@ -121,7 +121,7 @@ def listing_page(request, id):
                     # Find user who placed the highest bid on the auction
                     highest_biding_user = find_highest_username(listing)
                     if highest_biding_user.id == request.user.id:
-                        success_message = "Congratulations you have won this auction !"
+                        success_message = f"Congratulations {highest_biding_user.username} you have won this auction !"
                 return render(request, "auctions/listing_page.html", {
                     "listing": listing,
                     "success_message": success_message,

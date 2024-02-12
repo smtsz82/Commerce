@@ -1,6 +1,6 @@
 import django.http
 from django.db import models
-from .models import Auction_listing, Watchlist
+from .models import Auction_listing, Watchlist, Bid
 
 def is_valid(id):
     "Returns true if listing with id exists false otherwise"
@@ -17,3 +17,19 @@ def watchlisted(user_id ,listing):
         return added.id
     except:
         return None
+
+def assign_error_message(listing):
+    if not listing.is_active:
+        return "This listing is closed and you can no longer place bids on it"
+    return None
+
+def find_highest_username(listing):
+    bids = Bid.objects.filter(listing=listing)
+    # If there are no bids user has closed his auction without eny bids being placed
+    if len(bids) == 0:
+        return listing.user
+    max_bid = bids[0]
+    for bid in bids:
+        if bid.value > max_bid.value:
+            max_bid = bid
+    return max_bid.user

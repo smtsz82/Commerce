@@ -16,7 +16,7 @@
                     <a href="{% url 'listing_page' listing.id %}" class="listing_link">
                          <div class="listing_info">
                              <h2>{{ listing.listing_title }}</h2>
-                             <strong>Price: {{ listing.current_bid }}$</strong>
+                             <strong>Current bid: {{ listing.current_bid }}$</strong>
                              <h5>{{ listing.listing_desc }}</h5>
                              {% if listing.listing_category %}
                                 <h6>Category: {{ listing.listing_category}}</h6>

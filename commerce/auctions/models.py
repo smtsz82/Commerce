@@ -16,9 +16,9 @@ class Auction_listing(models.Model):
     current_bid = models.FloatField()
     # img asscociated with a listing
     creation_date = models.DateTimeField()
-    listing_img = models.CharField(max_length=10000, null=True)
+    listing_img = models.CharField(max_length=10000, blank=True)
     listing_title = models.CharField(max_length=150)
-    listing_category = models.CharField(max_length=150, null=True)
+    listing_category = models.CharField(max_length=150, blank=True)
 
     def __str__(self):
         return f"{self.listing_title, self.is_active, self.user}"
@@ -26,3 +26,11 @@ class Auction_listing(models.Model):
 class Watchlist(models.Model):
     user_id = models.IntegerField()
     listing = models.ForeignKey(Auction_listing, on_delete=models.CASCADE, related_name="watchlist")
+
+class Bid(models.Model):
+    value = models.FloatField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="made_bids")
+    listing = models.ForeignKey(Auction_listing, on_delete=models.CASCADE, related_name="bids")
+
+    def __str__(self):
+        return f"{self.user.username}, {self.listing.listing_title}, {self.value}"

@@ -5,9 +5,19 @@
 {% endblock %}
 
 {% block body %}
+    {% if success_message %}
+        <div class="alert alert-success">
+            {{ success_message }}
+        </div>
+    {% endif %}
+    {% if login_message %}
+        <div class="alert alert-danger" role="alert">
+            <a href="{% url 'login' %}">Login</a> {{ login_message }}
+        </div>
+    {% endif %}
     {% if error_message %}
-        <div class="alert alert-danger" role="alert" style="text-align: center">
-            <a href="{% url 'login' %}">Login</a> {{ error_message }}
+        <div class="alert alert-danger" role="alert">
+            {{ error_message }}
         </div>
     {% endif %}
     <div class="listing_page">
@@ -18,7 +28,7 @@
         {% endif %}
         <div class="listing_page_info">
             <h2>{{ listing.listing_title }}</h2>
-            <strong>Price: {{ listing.current_bid }}$</strong>
+            <strong>Current bid: {{ listing.current_bid }}$</strong>
             <h5>{{ listing.listing_desc }}</h5>
             {% if listing.listing_category %}
                 <h6>Category: {{ listing.listing_category}}</h6>
@@ -34,6 +44,29 @@
                     <input type="hidden" name="action" value="watchlist">
                     <input type="submit" value="{{ watchlist_state }}" class="btn btn-primary">
                 </form>
+            </div>
+            {% if listing.user.id == request.user.id and listing.is_active %}
+                <div class="right">
+                    <form action="{% url 'listing_page' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="close_listing">
+                        <input type="submit" value="close listing" class="btn btn-primary" style="background-color: red; margin: 10px; border-color: red;">
+                    </form>
+                </div>
+            {% endif %}
+            <div id="bid_form">
+                <div class="center">
+                    <form action="{% url 'listing_page' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="center">
+                            <input type="number" name="bid_price" placeholder="Bid" min="0" step="0.01">
+                        </div>
+                        <input type="hidden" name="action" value="place_bid">
+                        <div class="center">
+                            <input type="submit" value="Place bid" class="btn btn-primary">
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

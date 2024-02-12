@@ -7,9 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from .models import Auction_listing
-from .models import User
-from .models import Watchlist
+from .models import Auction_listing, Bid, Watchlist, User
 
 
 # class NewTaskForm(forms.Form):
@@ -18,7 +16,7 @@ from .models import Watchlist
 class New_listing(forms.Form):
     listing_title = forms.CharField(widget=forms.TextInput(attrs={"required": True, "class": "form-control", "placeholder": "listing title", "name": "listing_title"}))
     listing_description = forms.CharField(widget=forms.TextInput(attrs={"required": True, "class": "form-control", "placeholder": "listing description", "name": "listing_description"}))
-    starting_bid = forms.IntegerField(widget=forms.NumberInput(attrs={"required": True, "class": "form-control", "placeholder": "starting price", "name": "initial_bid", "min": 0.0}))
+    starting_bid = forms.IntegerField(widget=forms.NumberInput(attrs={"required": True, "class": "form-control", "placeholder": "starting price", "name": "initial_bid", "min": 0, "step": 0.01}))
 
 
 
@@ -110,6 +108,7 @@ def listing_page(request, id):
     if is_valid(id):
         listing = Auction_listing.objects.get(id=id)
         user_id = request.user.id
+        login_message = "to perform this action"
         # Check if listing is watchlisted for the current user
         wlisted = watchlisted(user_id, listing)
         if wlisted:
@@ -117,9 +116,16 @@ def listing_page(request, id):
         else:
             message = "Add to watchlist"
         if request.method == "GET":
+                success_message = None
+                if not listing.is_active:
+                    # Find user who placed the highest bid on the auction
+                    highest_biding_user = find_highest_username(listing)
+                    if highest_biding_user.id == request.user.id:
+                        success_message = "Congratulations you have won this auction !"
                 return render(request, "auctions/listing_page.html", {
                     "listing": listing,
-                    "error_message": None,
+                    "success_message": success_message,
+                    "error_message": assign_error_message(listing),
                     "watchlist_state": message
                 })
         if request.method == "POST" and request.POST["action"] == "watchlist" and request.user.is_authenticated:
@@ -130,11 +136,35 @@ def listing_page(request, id):
                 watchlist = Watchlist(user_id=user_id, listing=listing)
                 watchlist.save()
             return HttpResponseRedirect(reverse("listing_page", args=(id,)))
+        if request.method == "POST" and request.POST["action"] == "close_listing" and request.user.is_authenticated:
+            # Mark listing "is_active" field as False
+            listing.is_active = False
+            listing.save(update_fields=["is_active"])
+            return HttpResponseRedirect(reverse("listing_page", args=(id,)))
+        if request.method == "POST" and request.POST["action"] == "place_bid" and request.user.is_authenticated:
+            bid_value = float(request.POST["bid_price"])
+            if bid_value > listing.initial_bid and bid_value > listing.current_bid:
+                listing.current_bid = bid_value
+                listing.save(update_fields=["current_bid"])
+                bid = Bid(user=request.user, listing=listing, value=bid_value)
+                bid.save()
+                return render(request, "auctions/listing_page.html", {
+                    "listing": listing,
+                    "success_message": "Bid placed successfully",
+                    "error_message": assign_error_message(listing),
+                    "watchlist_state": message
+                })
+            return render(request, "auctions/listing_page.html", {
+                "listing": listing,
+                "error_message": f"Your bid must be highest than current highest bid ({listing.current_bid}) !",
+                "watchlist_state": message
+            })
         # if user is not logged in and tries to perform action that requires it we render the page with a error message
         else:
             return render(request, "auctions/listing_page.html", {
                 "listing": listing,
-                "error_message": "to perform this action",
+                "error_message": assign_error_message(listing),
+                "login_message": login_message,
                 "watchlist_state": message
             })
     return render(request, "auctions/404.html")

@@ -120,3 +120,14 @@ body {
 .alert{
     text-align: center;
 }
+
+.comment_p_cont{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+#comment_content{
+    width: 80%;
+    height: 20%;
+}

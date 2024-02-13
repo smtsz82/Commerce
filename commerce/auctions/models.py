@@ -34,3 +34,9 @@ class Bid(models.Model):
 
     def __str__(self):
         return f"{self.user.username}, {self.listing.listing_title}, {self.value}"
+
+class Comment(models.Model):
+    content = models.CharField(max_length=400)
+    creation_date = models.DateTimeField()
+    listing = models.ForeignKey(Auction_listing, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")

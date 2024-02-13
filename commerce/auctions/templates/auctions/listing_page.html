@@ -70,4 +70,13 @@
             </div>
         </div>
     </div>
+            <form action="{% url 'listing_page' listing.id %}" method="post">
+                <input type="hidden" name="action" value="place_comment">
+                <div class="center">
+                    <textarea name="comment_content" cols="30" rows="10" placeholder="Write comment" id="comment_content"></textarea>
+                </div>
+                <div class="right">
+                    <input type="submit" value="Place comment">
+                </div>
+            </form>
 {% endblock %}

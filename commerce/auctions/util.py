@@ -23,7 +23,7 @@ def watchlisted(user_id, listing):
 
 def assign_error_message(listing):
     if not listing.is_active:
-        return "This listing is closed and you can no longer place bids on it"
+        return "This listing is closed and you can no longer comment or place bids on it"
     return None
 
 

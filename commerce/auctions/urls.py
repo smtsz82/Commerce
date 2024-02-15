@@ -7,7 +7,8 @@ urlpatterns = [
     path("login", views.login_view, name="login"),
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
-    # Listing page can by accesed by listing id
+    path("watchlist", views.watchlist, name="watchlist"),
+    # Listing page can be accesed by listing id
     path("<int:id>", views.listing_page, name="listing_page"),
     path("new_listing", views.new_listing, name="new_listing")
 ]

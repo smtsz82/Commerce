@@ -5,6 +5,11 @@
 {% endblock %}
 
 {% block body %}
+    {% if warning_message %}
+        <div class="alert alert-warning">
+            {{ warning_message }}
+        </div>
+    {% endif %}
     {% if success_message %}
         <div class="alert alert-success">
             {{ success_message }}
@@ -54,29 +59,59 @@
                     </form>
                 </div>
             {% endif %}
-            <div id="bid_form">
-                <div class="center">
-                    <form action="{% url 'listing_page' listing.id %}" method="post">
-                        {% csrf_token %}
-                        <div class="center">
-                            <input type="number" name="bid_price" placeholder="Bid" min="0" step="0.01">
-                        </div>
-                        <input type="hidden" name="action" value="place_bid">
-                        <div class="center">
-                            <input type="submit" value="Place bid" class="btn btn-primary">
-                        </div>
-                    </form>
+            {% if listing.is_active %}
+                <div id="bid_form">
+                    <div class="center">
+                        <form action="{% url 'listing_page' listing.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="center">
+                                <input type="number" name="bid_price" placeholder="Bid" min="0" step="0.01" class="form-control">
+                            </div>
+                            <input type="hidden" name="action" value="place_bid">
+                            <div class="center">
+                                <input type="submit" value="Place bid" class="btn btn-primary">
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
-            <form action="{% url 'listing_page' listing.id %}" method="post">
-                <input type="hidden" name="action" value="place_comment">
-                <div class="center">
-                    <textarea name="comment_content" cols="30" rows="10" placeholder="Write comment" id="comment_content"></textarea>
+    {% if listing.is_active %}
+        <form action="{% url 'listing_page' listing.id %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="place_comment">
+            <div class="container">
+                <div class="place_comment_container">
+                    <textarea name="comment_content" cols="30" rows="10" placeholder="Add comment" id="Add comment" class="form-control" style="height: 90%;"></textarea>
+                    <input type="submit" value="Comment" class="btn btn-primary" style="margin-top: 7px;">
                 </div>
-                <div class="right">
-                    <input type="submit" value="Place comment">
+            </div>
+        </form>
+    {% endif %}
+    <br>
+    <h3>Comment section</h3>
+    {% if comments %}
+        <div class="comment_section">
+            {% for comment in comments %}
+                <div class="comment_container">
+                    <div class="comment_info">
+                        <p>
+                            <strong>{{ comment.user.username }}</strong>
+                            <span class="small_font">
+                                {{ comment.creation_date }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="comment_content">
+                        {{ comment.content }}
+                    </div>
                 </div>
-            </form>
+            {% endfor %}
+        </div>
+    {% elif listing.is_active %}
+        <div class="center">
+            <h4>This comment section is empty, be the first one to comment !</h4>
+        </div>
+    {% endif %}
 {% endblock %}

@@ -8,6 +8,7 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.username}"
 
+
 class Auction_listing(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
     is_active = models.BooleanField()
@@ -23,9 +24,11 @@ class Auction_listing(models.Model):
     def __str__(self):
         return f"{self.listing_title, self.is_active, self.user}"
 
+
 class Watchlist(models.Model):
     user_id = models.IntegerField()
     listing = models.ForeignKey(Auction_listing, on_delete=models.CASCADE, related_name="watchlist")
+
 
 class Bid(models.Model):
     value = models.FloatField()
@@ -35,8 +38,12 @@ class Bid(models.Model):
     def __str__(self):
         return f"{self.user.username}, {self.listing.listing_title}, {self.value}"
 
+
 class Comment(models.Model):
-    content = models.CharField(max_length=400)
+    content = models.CharField(max_length=4000)
     creation_date = models.DateTimeField()
     listing = models.ForeignKey(Auction_listing, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+
+    def __str__(self):
+        return f"User {self.user.username} palced comment {self.content} on listing titled {self.listing.listing_title}"

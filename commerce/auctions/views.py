@@ -7,17 +7,18 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from .models import Auction_listing, Bid, Watchlist, User
+from .models import Auction_listing, Bid, Watchlist, User, Comment
 
-
-# class NewTaskForm(forms.Form):
-#     task = forms.TextInput(attrs={"class":"form-control"})
 
 class New_listing(forms.Form):
-    listing_title = forms.CharField(widget=forms.TextInput(attrs={"required": True, "class": "form-control", "placeholder": "listing title", "name": "listing_title"}))
-    listing_description = forms.CharField(widget=forms.TextInput(attrs={"required": True, "class": "form-control", "placeholder": "listing description", "name": "listing_description"}))
-    starting_bid = forms.IntegerField(widget=forms.NumberInput(attrs={"required": True, "class": "form-control", "placeholder": "starting price", "name": "initial_bid", "min": 0, "step": 0.01}))
-
+    listing_title = forms.CharField(widget=forms.TextInput(
+        attrs={"required": True, "class": "form-control", "placeholder": "listing title", "name": "listing_title"}))
+    listing_description = forms.CharField(widget=forms.TextInput(
+        attrs={"required": True, "class": "form-control", "placeholder": "listing description",
+               "name": "listing_description"}))
+    starting_bid = forms.IntegerField(widget=forms.NumberInput(
+        attrs={"required": True, "class": "form-control", "placeholder": "starting price", "name": "initial_bid",
+               "min": 0, "step": 0.01}))
 
 
 def index(request):
@@ -77,8 +78,8 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
-def new_listing(request):
 
+def new_listing(request):
     if request.method == "GET":
         return render(request, "auctions/create_listing.html", {
             "form": New_listing()
@@ -92,7 +93,10 @@ def new_listing(request):
             listing_category = request.POST["category"]
             listing_img = request.POST["image_url"]
             user_id = request.user.id
-            auction_listing = Auction_listing(user=User.objects.get(id=user_id), is_active=True, initial_bid=initial_bid, current_bid=initial_bid, listing_img=listing_img, listing_title=listing_title, listing_desc=listing_description, listing_category=listing_category, creation_date=datetime.datetime.now())
+            auction_listing = Auction_listing(user=User.objects.get(id=user_id), is_active=True,
+                                              initial_bid=initial_bid, current_bid=initial_bid, listing_img=listing_img,
+                                              listing_title=listing_title, listing_desc=listing_description,
+                                              listing_category=listing_category, creation_date=datetime.datetime.now())
             auction_listing.save()
             return HttpResponseRedirect(reverse("index"))
         else:
@@ -104,9 +108,12 @@ def new_listing(request):
         "message": "Listing creation failed, please"
     })
 
+
 def listing_page(request, id):
     if is_valid(id):
         listing = Auction_listing.objects.get(id=id)
+        # All comments for given listing
+        comments = Comment.objects.filter(listing=listing)
         user_id = request.user.id
         login_message = "to perform this action"
         # Check if listing is watchlisted for the current user
@@ -116,18 +123,19 @@ def listing_page(request, id):
         else:
             message = "Add to watchlist"
         if request.method == "GET":
-                success_message = None
-                if not listing.is_active:
-                    # Find user who placed the highest bid on the auction
-                    highest_biding_user = find_highest_username(listing)
-                    if highest_biding_user.id == request.user.id:
-                        success_message = f"Congratulations {highest_biding_user.username} you have won this auction !"
-                return render(request, "auctions/listing_page.html", {
-                    "listing": listing,
-                    "success_message": success_message,
-                    "error_message": assign_error_message(listing),
-                    "watchlist_state": message
-                })
+            success_message = None
+            if not listing.is_active:
+                # Find user who placed the highest bid on the auction
+                highest_biding_user = find_highest_username(listing)
+                if highest_biding_user.id == request.user.id:
+                    success_message = f"Congratulations {highest_biding_user.username} you have won this auction !"
+            return render(request, "auctions/listing_page.html", {
+                "listing": listing,
+                "success_message": success_message,
+                "error_message": assign_error_message(listing),
+                "watchlist_state": message,
+                "comments": comments
+            })
         if request.method == "POST" and request.POST["action"] == "watchlist" and request.user.is_authenticated:
             # if user had listing in his watchlist we remove it from database
             if wlisted:
@@ -152,12 +160,30 @@ def listing_page(request, id):
                     "listing": listing,
                     "success_message": "Bid placed successfully",
                     "error_message": assign_error_message(listing),
-                    "watchlist_state": message
+                    "watchlist_state": message,
+                    "comments": comments
                 })
             return render(request, "auctions/listing_page.html", {
                 "listing": listing,
                 "error_message": f"Your bid must be highest than current highest bid ({listing.current_bid}) !",
-                "watchlist_state": message
+                "watchlist_state": message,
+                "comments": comments
+            })
+        if request.method == "POST" and request.POST["action"] == "place_comment" and request.user.is_authenticated:
+            comment_content = request.POST["comment_content"]
+            # If user typed something to the comment field we create a comment
+            if comment_content:
+                comment = Comment(content=comment_content, creation_date=datetime.datetime.now(), listing=listing,
+                                  user=User.objects.get(id=user_id))
+                comment.save()
+                return HttpResponseRedirect(reverse("listing_page", args=(id,)))
+            # Else we render the page again with a warning
+            return render(request, "auctions/listing_page.html", {
+                "listing": listing,
+                "warning_message": "Your comment needs to have content in it !",
+                "error_message": assign_error_message(listing),
+                "watchlist_state": message,
+                "comments": comments
             })
         # if user is not logged in and tries to perform action that requires it we render the page with a error message
         else:
@@ -165,6 +191,16 @@ def listing_page(request, id):
                 "listing": listing,
                 "error_message": assign_error_message(listing),
                 "login_message": login_message,
-                "watchlist_state": message
+                "watchlist_state": message,
+                "comments": comments
             })
     return render(request, "auctions/404.html")
+
+
+@login_required
+def watchlist(request):
+    wlisted_listings = Watchlist.objects.filter(user_id=request.user.id)
+    listings = [listing.listing for listing in wlisted_listings]
+    return render(request, "auctions/watchlist.html", {
+        "listings": listings
+    })

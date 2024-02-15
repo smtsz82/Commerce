@@ -1,0 +1,36 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    {% if not listings %}
+        <div class="center">
+            <h2>Your watchlist is empty</h2>
+        </div>
+    {% else %}
+    <div class="lis_container">
+        {% for listing in listings %}
+            <div class="listing">
+                {% if listing.listing_img %}
+                    <div class="small_image">
+                        <a href="{% url 'listing_page' listing.id %}" class="listing_link">
+                            <img src="{{ listing.listing_img }}" alt="{{ listing.listing_title }}">
+                        </a>
+                    </div>
+                {% endif %}
+                <a href="{% url 'listing_page' listing.id %}" class="listing_link">
+                   <div class="listing_info">
+                       <h2>{{ listing.listing_title }}</h2>
+                       <strong>Current bid: {{ listing.current_bid }}$</strong>
+                       <h5>{{ listing.listing_desc }}</h5>
+                       {% if listing.listing_category %}
+                          <h6>Category: {{ listing.listing_category}}</h6>
+                       {% endif %}
+                       <span class="small_font">
+                           Created {{ listing.creation_date }} by {{ listing.user.username }}
+                       </span>
+                   </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endblock %}

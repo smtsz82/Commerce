@@ -173,7 +173,7 @@ def listing_page(request, id):
                 })
             return render(request, "auctions/listing_page.html", {
                 "listing": listing,
-                "error_message": f"Your bid must be higher than current highest bid ({listing.current_bid}) !",
+                "error_message": f"Your bid must be higher than current highest bid {listing.current_bid}$ ",
                 "watchlist_state": message,
                 "comments": comments
             })
@@ -218,3 +218,10 @@ def category(request):
         return render(request, "auctions/category.html", {
             "categories": categories
         })
+
+def category_listing(request, category):
+    category_listings = Auction_listing.objects.filter(listing_category=category)
+    return render(request, "auctions/category_listing.html", {
+        "listings": category_listings,
+        "category": category
+    })

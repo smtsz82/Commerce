@@ -150,6 +150,14 @@ def listing_page(request, id):
             listing.save(update_fields=["is_active"])
             return HttpResponseRedirect(reverse("listing_page", args=(id,)))
         if request.method == "POST" and request.POST["action"] == "place_bid" and request.user.is_authenticated:
+            if not request.POST["bid_price"]:
+                return render(request, "auctions/listing_page.html", {
+                    "listing": listing,
+                    "warning_message": "Your bid cant be empty",
+                    "error_message": assign_error_message(listing),
+                    "watchlist_state": message,
+                    "comments": comments
+                })
             bid_value = float(request.POST["bid_price"])
             if bid_value > listing.initial_bid and bid_value > listing.current_bid:
                 listing.current_bid = bid_value
@@ -165,7 +173,7 @@ def listing_page(request, id):
                 })
             return render(request, "auctions/listing_page.html", {
                 "listing": listing,
-                "error_message": f"Your bid must be highest than current highest bid ({listing.current_bid}) !",
+                "error_message": f"Your bid must be higher than current highest bid ({listing.current_bid}) !",
                 "watchlist_state": message,
                 "comments": comments
             })
@@ -197,10 +205,16 @@ def listing_page(request, id):
     return render(request, "auctions/404.html")
 
 
-@login_required
 def watchlist(request):
     wlisted_listings = Watchlist.objects.filter(user_id=request.user.id)
     listings = [listing.listing for listing in wlisted_listings]
     return render(request, "auctions/watchlist.html", {
         "listings": listings
     })
+
+def category(request):
+    if request.method == "GET":
+        categories = set(listing.listing_category for listing in Auction_listing.objects.filter(is_active=True) if listing.listing_category)
+        return render(request, "auctions/category.html", {
+            "categories": categories
+        })
